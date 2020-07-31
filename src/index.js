@@ -203,11 +203,18 @@ class Page {
    * @public
    */
   save() {
-    return {
+    const payload = {
       id: this.data.id,
       title: this.data.title || this._nodes.input.textContent,
       needToCreate: !this.data.id && this.data.needToCreate,
     };
+    Object.keys(payload).forEach(key => {
+      if ([undefined, false].includes(payload[key])) {
+        delete payload[key];
+      }
+    })
+
+    return payload;
   }
 
   /**
