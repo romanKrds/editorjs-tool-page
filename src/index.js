@@ -21,7 +21,7 @@ require('./index.css').toString();
  * @description Tool's input and output data format
  * @property {number} id — Page's id.
  * @property {string} title — Page's content. Can include HTML tags: <b><i>
- * @property {boolean} [needToCreate] — flag to show is it time to create a page with provided title
+ * @property {boolean} [isCompleted] — flag to show if the tool should be displayed as a link to the created page
  */
 class Page {
   /**
@@ -101,7 +101,7 @@ class Page {
     this._data = Object.assign({}, {
       id: data.id || this._data.id,
       title: data.title || this._data.title,
-      needToCreate: data.needToCreate || this._data.needToCreate
+      isCompleted: data.isCompleted || this._data.isCompleted
     });
   }
 
@@ -127,8 +127,8 @@ class Page {
     this._nodes.input.dataset.placeholder = this.api.i18n.t(this._placeholder);
 
     this._nodes.input.addEventListener('keydown', (event) => {
-      if (event.code === 'Enter') {
-        this.data = {needToCreate: true};
+      if (event.code === 'Enter' && this._nodes.input.textContent) {
+        this.data = {isCompleted: true};
       }
     });
 
@@ -149,7 +149,7 @@ class Page {
       target: '_blank',
       href: pageURL,
     });
-    this._nodes.content.textContent = this.data.title;
+    this._nodes.content.textContent = this.data.title || 'Untitled page';
 
     contentHolder.appendChild(this._nodes.content);
 
@@ -205,9 +205,10 @@ class Page {
   save() {
     const payload = {
       id: this.data.id,
-      title: this.data.title || this._nodes.input.textContent,
-      needToCreate: !this.data.id && this.data.needToCreate,
+      title: this.data.title || this._nodes.input?.textContent || '',
+      isCompleted: !this.data.id && this.data.isCompleted,
     };
+
     Object.keys(payload).forEach(key => {
       if ([undefined, false].includes(payload[key])) {
         delete payload[key];
