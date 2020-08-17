@@ -12,14 +12,14 @@ require('./index.css').toString();
 /**
  * @typedef {object} PageConfig
  * @property {string} placeholder - placeholder for the empty Page
- * @property {string} wikiPageEndpoint - an endpoint to display page details. It should be without id, as later each page tool will be append it's own page id
+ * @property {string} wikiPageEndpoint - an endpoint to display page details. It should be without uuid, as later each page tool will be append it's own page uuid
  * @property {boolean} preserveBlank - Whether or not to keep blank Pages when saving editor data
  */
 
 /**
  * @typedef {Object} PageToolData
  * @description Tool's input and output data format
- * @property {number} id — Page's id.
+ * @property {number} uuid — Page's uuid.
  * @property {string} title — Page's content. Can include HTML tags: <b><i>
  * @property {boolean} [isCompleted] — flag to show if the tool should be displayed as a link to the created page
  */
@@ -99,7 +99,7 @@ class Page {
    */
   set data(data) {
     this._data = Object.assign({}, {
-      id: data.id || this._data.id,
+      uuid: data.uuid || this._data.uuid,
       title: data.title || this._data.title,
       isCompleted: data.isCompleted || this._data.isCompleted
     });
@@ -143,7 +143,7 @@ class Page {
    */
   prepareLinkPreview() {
     const contentHolder = this.make('div', this._CSS.contentHolder);
-    const pageURL = this._endpoint && this.data.id ? `${this._endpoint}/${this.data.id}` : '#';
+    const pageURL = this._endpoint && this.data.uuid ? `${this._endpoint}/${this.data.uuid}` : '#';
 
     this._nodes.content = this.make('a', [this._CSS.input, this._CSS.contentEl], {
       target: '_blank',
@@ -168,7 +168,7 @@ class Page {
     /**
      * If Tool already has data, render readonly input with a link
      */
-    if (this.data.id) {
+    if (this.data.uuid) {
       this._nodes.contentHolder = this.prepareLinkPreview();
       this._nodes.container.appendChild(this._nodes.contentHolder);
     } else {
@@ -204,9 +204,9 @@ class Page {
    */
   save() {
     const payload = {
-      id: this.data.id,
+      uuid: this.data.uuid,
       title: this.data.title || this._nodes.input?.textContent || '',
-      isCompleted: !this.data.id && this.data.isCompleted,
+      isCompleted: !this.data.uuid && this.data.isCompleted,
     };
 
     Object.keys(payload).forEach(key => {
